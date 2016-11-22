@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+  <meta charset="UTF-8">
+  <title>T5 Engine Autocmplete</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="../src/T5.js" charset="utf-8"></script>
+</head>
+
+<body>
+
+  <header id="top">
+    <img src="t5.jpg" alt="logo">
+    <h3>Autocmplete example</h3>
+  </header>
+
+  <section class="wraper">
+
+    <nav class="fixs">
+      <a href="index.html#filters" class="btn" title="Back to documentation">&#10096;</a>
+      <span class="separator"></span>
+      <a href="#markup" class="btn">HTML</a>
+      <a href="#js" class="btn">JavaScript</a>
+      <a href="#css" class="btn">CSS</a>
+    </nav>
+
+    <div id="filters" class="paragraph">
+      <h1>Hero autocomplete</h1>
+      <p>Type name or alter-ego of your favourite DC's superhero.</p>
+      <p><input id="filter-box" type="text" placeholder="Hero"></p>
+      <ul data-t5="heroes">
+        <li repeat="hero in heroes | flat">{{ hero.name }}, {{ hero.age }}</li>
+      </ul>
+    </div>
+
+    <div id="markup" class="paragraph">
+      <h1>HTML <a href="#top" class="top-scroll">&#10148;</a></h1>
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Iste modi corporis eligendi sequi aliquid quas totam provident, magnam delectus nobis quia, incidunt fugit. Provident veniam minus, illum atque minima! Nisi.</p>
+      <pre></pre>
+    </div>
+
+    <div id="js" class="paragraph">
+      <h1>JavasScript <a href="#top" class="top-scroll">&#10148;</a></h1>
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Iste modi corporis eligendi sequi aliquid quas totam provident, magnam delectus nobis quia, incidunt fugit. Provident veniam minus, illum atque minima! Nisi.</p>
+      <pre></pre>
+    </div>
+
+    <div id="css" class="paragraph">
+      <h1>CSS <a href="#top" class="top-scroll">&#10148;</a></h1>
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Iste modi corporis eligendi sequi aliquid quas totam provident, magnam delectus nobis quia, incidunt fugit. Provident veniam minus, illum atque minima! Nisi.</p>
+      <pre></pre>
+    </div>
+  </section>
+
+  <script type="text/javascript">
+
+    (function(t5) {
+
+      t5.template();
+
+      let model = '';
+      const filterBox = document.getElementById('filter-box');
+      const heroes = [{
+        id: 1,
+        name: 'Superman',
+        age: 32
+      }, {
+        id: 2,
+        name: 'Batman',
+        age: 26
+      }, {
+        id: 3,
+        name: 'Flash',
+        age: 27
+      }, {
+        id: 4,
+        name: 'Green Lantern',
+        age: 27
+      }, {
+        id: 5,
+        name: 'Cyborg',
+        age: 27
+      }, {
+        id: 6,
+        name: 'Wonder Woman',
+        age: 24
+      }];
+
+      t5.filter('flat', (hero) => ~stringifyKeys(hero).indexOf(model.toLocaleLowerCase()));
+
+      function stringifyKeys(data) {
+        return JSON.stringify(data).replace(/"\w+":"*(\w+)"*/g, '$1').toLocaleLowerCase();
+      }
+
+      filterBox.onkeyup = function(event) {
+        model = this.value;
+        t5.render('heroes', {heroes});
+      }
+
+      t5.render('heroes', {heroes});
+    }(t5));
+  </script>
+</body>
+
+</html>

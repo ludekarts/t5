@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+  <meta charset="UTF-8">
+  <title>T5 Micro-templating Engine </title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="../src/T5.js" charset="utf-8"></script>
+</head>
+
+<body>
+
+  <header id="top">
+    <img src="t5.jpg" alt="logo">
+    <h3>Micro-templating Engine</h3>
+  </header>
+
+  <section class="wraper">
+    <nav class="fixs">
+      <a href="#get-started" class="btn">Get started</a>
+      <a href="#templates" class="btn">Templates</a>
+      <a href="#repeaters" class="btn">Repeaters</a>
+      <a href="#filters" class="btn">Filters</a>
+      <a href="#interpolation" class="btn">Interpolation</a>
+    </nav>
+
+    <div id="get-started" class="paragraph">
+      <h1>Get started <a href="#top" class="top-scroll">&#10148;</a></h1>
+      <p>
+        T5 is a micro-templating engine, allows you to fast render and filter complex data structures with no external dependencies.
+        Since nowadays it is probably an "old school way" of doing templates like this, in some cases (like e.g. fast prototyping)
+        it is nice to have something that is not require whole a lot of setup &#x1f609;
+      </p>
+
+      <h2>Installation</h2>
+      <pre>  bower <span class="keyword">install</span> <em>https://github.com/ludekarts/t5.git</em> --save-dev</pre>
+      <p>After installation include library into your HTML file like so:</p>
+      <pre>  &lt;script src="<em><span class="keyword">../path/to/T5.js</span></em>" charset="utf-8" &gt;&lt;/script&gt; </pre>
+
+      <h2>Markup</h2>
+      <p>
+        Any HTML tag can be turned into template just by adding to it <code>data-t5</code> attribute containing its name. Any dynamic content will be displyed between double curly braces <code>{{ }}</code>.
+      </p>
+      <pre>  &lt;p <span class="keyword">data-t5</span>="playground"&gt; <span class="keyword">{{</span> my dynamic content <span class="keyword">}}</span>&lt;/p&gt;</pre>
+
+
+      <h2>JS API</h2>
+      <p>
+        T5 have very simple API containing 3 methods nad one constant.
+        <ul>
+          <li><code>version</code> - current version of the library.</li>
+          <li><code>template('templateString', 'name')</code> - register template string and fetch inline templates containing <code>data-t5</code> attribute.</li>
+          <li><code>filter('filterName', filterFunction)</code> - register filter method.</li>
+          <li><code>render('templateName', dataForTemplate)</code> - render selected template with provided data.</li>
+        </ul>
+      </p>
+
+      <h2>Chaining</h2>
+      <p>
+        You can chain all T5's API methods except <code>render()</code>. It is the only one that returns <code>template string</code> instead of T5 instance.
+      </p>
+      <pre>  t5.<span class="keyword">template</span>()
+    .<span class="keyword">template</span>('&lt;p&gt;Hello {{ name }}&lt;/p&gt;', 'hello')
+    .<span class="keyword">template</span>('&lt;p&gt;Goodbye {{ name }}&lt;/p&gt;', 'goodbye')
+    .<span class="keyword">filter</span>('filterId2', (person) => person.id === 2)
+    .<span class="keyword">render</span>('list', data);</pre>
+    </div>
+
+    <div id="templates" class="paragraph">
+      <h1>Templates <a href="#top" class="top-scroll">&#10148;</a></h1>
+      <p>
+        In order to use any of the templates you need to register them first. You can do thin in two ways:
+      </p>
+
+      <h2>Register HTML</h2>
+      <p>To register all templates within HTML code you just need to call method <code>template()</code> without any parameters.
+        This will collect all HTML tags with <code>data-t5</code> attribute and uses them as placeholders for render code.</p>
+      <pre>  t5.<span class="keyword">template</span>();</pre>
+
+      <h2>Register via JS</h2>
+      <p>
+        In some cases you'd want to have just template without placeholder. In that case you should register your template as
+        <code>template string</code> through<code>template()</code> methods using it like below.
+      </p>
+      <pre>  t5.<span class="keyword">template</span>(<span class="keyword">'&lt;span&gt;{{ content }}&lt;/span&gt;'</span>, <span class="keyword">'templateName'</span>);</pre>
+      <p>
+        You need to remember though that because of registering template through JS you do not have HTML placeholder,
+        that is why to display its content you need to use <code>render()</code> method output as an <code>innerHTML</code>
+        of wraper you need to porvide.
+      </p>
+      <pre>  const <span class="keyword">wrapper</span> = document.querySelector('#wrapper');
+        <span class="keyword">wrapper.innerHTML</span> = t5.render('templateName', data);</pre>
+
+        <h2>Render Template</h2>
+        <p>
+          To render template you need to use <code>render()</code> method. It takes two parameters.
+          <ul>
+            <li><code>template name</code> - it is name from <code>data-t5</code> attribute or given <code>templateName</code> in JS resistration.</li>
+            <li>
+              <code>data</code> - data object to display. It is importan to remmember that T5 expect that data parameter is an object,
+              so in case you would like to render only one value it need to be wrapped with object.
+            </li>
+          </ul>
+        </p>
+        <pre>
+  &lt;span data-t5="single"&gt;{{ <span class="keyword">single</span> }}&lt;/span&gt;
+
+  ----------------------------------
+
+  const <span class="keyword">single</span> = 10;
+  t5.render('single', <span class="keyword">{single}</span>);</pre>
+    </div>
+
+    <div id="repeaters" class="paragraph">
+      <h1>Repeaters <a href="#top" class="top-scroll">&#10148;</a></h1>
+      <p>T5 allows to render nested repeated data structures with easy <code>repeat</code> syntax. Important is that each repeater need to have a <code>wrapper</code> element.</p>
+
+      <pre>
+  const DC = {
+    heroes : [
+      {id: 1, name: 'Superman'},
+      {id: 2, name: 'Batman'},
+      {id: 3, name: 'Flash'}
+    ]
+  };
+
+  ----------------------------------
+
+  &lt;ul data-t5="list"&gt;
+    &lt;li <span class="keyword">render</span>="<span class="keyword">hero in DC.heroes</span>"&gt;{{ <span class="keyword">hero.name</span> }}&lt;/li&gt;
+  &lt;/ul&gt;
+
+  ----------------------------------
+
+  &lt;ul&gt;
+    &lt;li&gt;Superman&lt;/li&gt;
+    &lt;li&gt;Batman&lt;/li&gt;
+    &lt;li&gt;Flash&lt;/li&gt;
+  &lt;/ul&gt;</pre>
+    </div>
+
+
+  <div id="filters" class="paragraph">
+    <h1>Filters <a href="#top" class="top-scroll">&#10148;</a></h1>
+    <p>Each repeater can be supplied with additional filter method to display only identified elements from the list.
+      To do this after specifying repeater add pipe <code> | </code> and then <code>filterName</code>. It is important that pipe is wepapped with spaces.
+    </p>
+
+    <pre>
+  const DC = {
+    heroes : [
+      {id: 1, name: 'Superman'},
+      {id: 2, name: 'Batman'},
+      {id: 3, name: 'Flash'}
+    ]
+  };
+
+  ----------------------------------
+
+  &lt;ul data-t5="list"&gt;
+    &lt;li <span class="keyword">render</span>="hero in DC.heroes <span class="keyword">| filterId2</span>"&gt;{{ <span class="keyword">hero.name</span> }}&lt;/li&gt;
+  &lt;/ul&gt;
+
+  ----------------------------------
+
+  &lt;ul&gt;
+    &lt;li&gt;Batman&lt;/li&gt;
+  &lt;/ul&gt;</pre>
+
+    <p>In oreder yo use filter you first need to create one first. To do this follow the example below. T5 filters works similar to <code>array</code> filters so they pass through only those elements that returns <code>true</code> from test condition.</p>
+    <pre>  t5.<span class="keyword">filter</span>(<span class="keyword">'filterId2'</span>, (hero) => <span class="keyword">hero.id === 2</span>);</pre>
+    <p>See how easy it is to implement <a href="autocomplete.html">autocomplete with T5</a>.</p>
+    </div>
+
+    <div id="interpolation" class="paragraph">
+      <h1>Interpolation <a href="#top" class="top-scroll">&#10148;</a></h1>
+      <p>
+        Within templates you are allowed to perform simple interpolations which can be use for example to tests certain conditions.
+      </p>
+
+      <pre>  &lt;span data-t5="warning" class="label {{<span class="keyword"># (item.limit &gt; 2) ? 'show' : 'hide'</span>}}"&gt;Limit exceeded!&lt;/span&gt;</pre>
+    </div>
+
+  </section>
+
+  <footer>
+    <span>Copyright © 2016 <a href="https://github.com/ludekarts" target="_blank">@ludekarts</a></span>
+  </footer>
+
+  <script src="jump.js" charset="utf-8"></script>
+</body>
+
+</html>
