@@ -226,3 +226,67 @@ a.btn {
 .paragraph {
 	margin-top: 50px;
 }
+
+/* AUTOCOMPLETE */
+
+.ac {
+	max-width: 350px;
+	display: block;
+	background: white;
+	box-shadow: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12);
+}
+
+
+.ac.off {
+	display: none;
+}
+
+.ac li {
+	margin: 0px;
+	cursor: pointer;
+	background: white;
+	padding: 10px 15px;
+	position: relative;
+	transition: background .3s ease;
+}
+
+.ac li:hover {
+	background: #ddd;
+}
+
+.ac li:after {
+	/* Clearfix */
+	height: 0;
+	content: " ";
+	clear: both;
+	display: block;
+	visibility: hidden;
+}
+
+.ac li:before {
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	content: " ";
+	display: block;
+	position: absolute;
+	background: rgba(0,0,0,0);
+}
+
+.ac .name {
+	float: left;
+	line-height: 20px;
+	display: inline-block;
+}
+
+.ac .alt {
+	width: 80px;
+	float: right;
+	font-size: 12px;
+	padding: 4px;
+	border-radius: 4px;
+	text-align: center;
+	background: #FFE401;
+	display: inline-block;
+}

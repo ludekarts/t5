@@ -3,15 +3,15 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>T5 Micro-templating Engine </title>
-  <link rel="stylesheet" href="styles.css">
+  <title>T5 Micro-templating Engine</title>
+  <link href="assets/styles.css" rel="stylesheet">
   <script src="../src/T5.js" charset="utf-8"></script>
 </head>
 
 <body>
 
   <header id="top">
-    <img src="t5.jpg" alt="logo">
+    <img src="assets/t5.jpg" alt="logo">
     <h3>Micro-templating Engine</h3>
   </header>
 
@@ -176,9 +176,10 @@
       <h1>Interpolation <a href="#top" class="top-scroll">&#10148;</a></h1>
       <p>
         Within templates you are allowed to perform simple interpolations which can be use for example to tests certain conditions.
+        In order to perform interpolation you need to add <code> # </code> after double curly braces <code>{{# interpolation }}</code>
       </p>
 
-      <pre>  &lt;span data-t5="warning" class="label {{<span class="keyword"># (item.limit &gt; 2) ? 'show' : 'hide'</span>}}"&gt;Limit exceeded!&lt;/span&gt;</pre>
+      <pre>  &lt;span data-t5="warning" class="label <span class="keyword">{{# (item.limit &gt; 2) ? 'show' : 'hide' }}</span>"&gt;Limit exceeded!&lt;/span&gt;</pre>
     </div>
 
   </section>
@@ -187,7 +188,7 @@
     <span>Copyright © 2016 <a href="https://github.com/ludekarts" target="_blank">@ludekarts</a></span>
   </footer>
 
-  <script src="jump.js" charset="utf-8"></script>
+  <script src="assets/jump.js" charset="utf-8"></script>
 </body>
 
 </html>

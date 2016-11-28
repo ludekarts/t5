@@ -69,11 +69,11 @@
    // Create repeater function with proper scope names.
    function createRepeaterFunction(repeater, scopeName, dataName, parentScope, filter) {
      if (parentScope) {
-       return " (function (" + parentScope + ") { var result = ''; " + dataName + ".forEach(function (" + scopeName + ") { " + ( filter ? "if (filters['" + filter + "'](" + scopeName + "))" : "") + "result += '" + repeater.outerHTML.replace(/\{\{([\s\S]+?(\}?)+)\}\}/g, function (a, b) {
+       return " (function (" + parentScope + ") { var result = ''; " + dataName + ".forEach(function (" + scopeName + ") { " + ( filter ? "if (filters['" + filter + "'](" + scopeName + "," + parentScope + "))" : "") + "result += '" + repeater.outerHTML.replace(/\{\{([\s\S]+?(\}?)+)\}\}/g, function (a, b) {
          return parseInterpolations(b);
        }) + "'; }); return result; }(" + parentScope + ")) ";
      } else {
-       return " (function (data) { var result = ''; data." + dataName + ".forEach(function (" + scopeName + ") { " + ( filter ? "if (filters['" + filter + "'](" + scopeName + "))" : "") + " result += '" + repeater.outerHTML.replace(/\{\{([\s\S]+?(\}?)+)\}\}/g, function (a, b) {
+       return " (function (data) { var result = ''; data." + dataName + ".forEach(function (" + scopeName + ") { " + ( filter ? "if (filters['" + filter + "'](" + scopeName + ", data))" : "") + " result += '" + repeater.outerHTML.replace(/\{\{([\s\S]+?(\}?)+)\}\}/g, function (a, b) {
          return parseInterpolations(b);
        }) + "'; }); return result; }(data)) ";
      }
@@ -116,7 +116,7 @@
        irc[repeaterKey] = "'+" + createRepeaterFunction(innerRepeater, params[0], params[2], parentScope, filter) + "+'";
      });
 
-     return " (function (data) { var result = '';  data." + dataName + ".forEach(function (" + scopeName + ") { " + ( gfilter ? "if (filters['" + gfilter + "'](" + scopeName + "))" : "") + " result += '" + inject(repeater.outerHTML, irc) + "'; }); return result; }(data)) ";
+     return " (function (data) { var result = '';  data." + dataName + ".forEach(function (" + scopeName + ") { " + ( gfilter ? "if (filters['" + gfilter + "'](" + scopeName + "," + parentScope + "))" : "") + " result += '" + inject(repeater.outerHTML, irc) + "'; }); return result; }(data)) ";
    }
 
    function findRepeaters(repeatersFunc, node, parentScope) {
@@ -172,7 +172,8 @@
 
    // Register template with @data.
    function _render(templateName, data) {
-     var result = _precompiledTemplates[templateName] ? _precompiledTemplates[templateName](data, _filters) : '<< NO TEMPLATE >>';
+     // Get only the content withouth origonal wrapper OR return no template string.
+     var result = _precompiledTemplates[templateName] ? _precompiledTemplates[templateName](data, _filters).replace(/<(\w*)[^>]*>([\s\S]*?)<\/\1>/, function (a, b, c) { return c }) : '<< NO TEMPLATE >>';
      var ref = _templatesReferences[templateName];
      if (ref) ref.innerHTML = result;
      return result;

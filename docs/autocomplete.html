@@ -4,14 +4,14 @@
 <head>
   <meta charset="UTF-8">
   <title>T5 Engine Autocmplete</title>
-  <link rel="stylesheet" href="styles.css">
+  <link href="assets/styles.css" rel="stylesheet">
   <script src="../src/T5.js" charset="utf-8"></script>
 </head>
 
 <body>
 
   <header id="top">
-    <img src="t5.jpg" alt="logo">
+    <img src="assets/t5.jpg" alt="logo">
     <h3>Autocmplete example</h3>
   </header>
 
@@ -22,83 +22,139 @@
       <span class="separator"></span>
       <a href="#markup" class="btn">HTML</a>
       <a href="#js" class="btn">JavaScript</a>
-      <a href="#css" class="btn">CSS</a>
     </nav>
 
     <div id="filters" class="paragraph">
       <h1>Hero autocomplete</h1>
-      <p>Type name or alter-ego of your favourite DC's superhero.</p>
-      <p><input id="filter-box" type="text" placeholder="Hero"></p>
-      <ul data-t5="heroes">
-        <li repeat="hero in heroes | flat">{{ hero.name }}, {{ hero.age }}</li>
+      <p>Type name or alter-ego of your favourite DC superhero. Type <code>*</code> to see all heroes.</p>
+
+      <!-- Autocomplete START -->
+      <p><input id="filter-box" type="text" placeholder="Hero name"></p>
+      <ul id="heroes-container" data-t5="heroes" class="ac off">
+        <li repeat="hero in heroes | flat" data-idx="{{ hero.name }}">
+          <span class="name">{{ hero.name }}</span> <span class="alt">{{ hero.alt }}</span>
+        </li>
       </ul>
+      <!-- Autocomplete END -->
+
     </div>
 
     <div id="markup" class="paragraph">
       <h1>HTML <a href="#top" class="top-scroll">&#10148;</a></h1>
-      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Iste modi corporis eligendi sequi aliquid quas totam provident, magnam delectus nobis quia, incidunt fugit. Provident veniam minus, illum atque minima! Nisi.</p>
-      <pre></pre>
+      <p>To display autocomplete you will need two major elements, <code>input</code> and <code>list</code>.</p>
+      <pre>
+  &lt;p&gt;
+    &lt;input id="filter-box" type="text" placeholder="Hero name"&gt;
+  &lt;/p&gt;
+  &lt;ul id="heroes-container" <span class="keyword">data-t5=</span>"<span class="keyword">heroes</span>" class="ac off"&gt;
+    &lt;li <span class="keyword">repeat=</span>"<span class="keyword">hero in heroes | flat</span>" data-idx="<span class="keyword">{{ hero.name }}</span>"&gt;
+      &lt;span class="name"&gt;<span class="keyword">{{ hero.name }}</span>&lt;/span&gt; &lt;span class="alt"&gt;<span class="keyword">{{ hero.alt }}</span>&lt;/span&gt;
+    &lt;/li&gt;
+  &lt;/ul&gt;</pre>
+
     </div>
 
     <div id="js" class="paragraph">
-      <h1>JavasScript <a href="#top" class="top-scroll">&#10148;</a></h1>
-      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Iste modi corporis eligendi sequi aliquid quas totam provident, magnam delectus nobis quia, incidunt fugit. Provident veniam minus, illum atque minima! Nisi.</p>
-      <pre></pre>
+      <h1>JavaScript <a href="#top" class="top-scroll">&#10148;</a></h1>
+      <p>
+        JS code is very simple in this example. Most of it is just setting up a data model, getting references to DOM elements
+        and handling events. Full code can be downloaded from <a href="t5-ac-raw.txt">here</a>. Here I'd like to point out three things.
+      </p>
+      <h3>Data Structure</h3>
+      <p>
+        Heroes data structure is quite simple, but nothing stands in our way to make it more complex if you'd need that kind of structure.
+        <s>See advanced data example</s>.
+      </p>
+      <pre>  const <span class="keyword">heroes</span> = [
+    { name: 'Batman', alt: 'Bruce Wayne', all: "*" },
+    { name: 'Flash', alt: ' Barry Allen', all: "*" },
+    { name: 'Cyborg', alt: 'Victor Stone', all: "*"},
+    { name: 'Wonder Woman', alt: 'Diana', all: "*" },
+    { name: 'Superman', alt: 'Clark Kent', all: "*" },
+    { name: 'Green Lantern', alt: 'Hal Jordan', all: "*" }
+  ];</pre>
+
+      <h3>Template setup</h3>
+      <p>In orde to render autocomplete template you need to do there things.</p>
+      <ul>
+        <li>- Register template</li>
+        <li>- Add new filter function related to content in input field.</li>
+        <li>- Call <code>render()</code> method with <code>heroes</code> array.</li>
+      </ul>
+      <pre>  t5.<span class="keyword">template</span>()
+    .<span class="keyword">filter</span>('<span class="keyword">flat'</span>, (hero) => ~stringifyKeys(hero).indexOf(model.toLocaleLowerCase()) && model.length > 0)
+    .<span class="keyword">render</span>(<span class="keyword">'heroes'</span>, <span class="keyword">{heroes}</span>);</pre>
+
+      <h3>Updating the model</h3>
+      <p>
+        On each input field update you need to re-render the template. Code below shows the most straightforward way of doing that.
+        This could be optimised for example by adding a debouncing function, to make render more efficient.
+      </p>
+      <pre>
+  filterBox.addEventListener(<span class="keyword">'keyup'</span>, (event) => {
+    <span class="keyword">model</span> = event.target.value;
+    t5.<span class="keyword">render</span>(<span class="keyword">'heroes'</span>, <span class="keyword">{heroes}</span>);
+    container.children.length > 0 ? container.classList.remove('off') : container.classList.add('off');
+  });</pre>
     </div>
 
-    <div id="css" class="paragraph">
-      <h1>CSS <a href="#top" class="top-scroll">&#10148;</a></h1>
-      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Iste modi corporis eligendi sequi aliquid quas totam provident, magnam delectus nobis quia, incidunt fugit. Provident veniam minus, illum atque minima! Nisi.</p>
-      <pre></pre>
-    </div>
   </section>
 
+  <footer>
+    <span>Copyright © 2016 <a href="https://github.com/ludekarts" target="_blank">@ludekarts</a></span>
+  </footer>
+
+  <script src="assets/jump.js" charset="utf-8"></script>
   <script type="text/javascript">
 
     (function(t5) {
 
-      t5.template();
-
       let model = '';
+      const stringifyKeys = (data) => JSON.stringify(data).replace(/"\w+":"*(\w+)"*/g, '$1').toLocaleLowerCase();
+      const container = document.getElementById('heroes-container');
       const filterBox = document.getElementById('filter-box');
-      const heroes = [{
-        id: 1,
-        name: 'Superman',
-        age: 32
-      }, {
-        id: 2,
-        name: 'Batman',
-        age: 26
-      }, {
-        id: 3,
-        name: 'Flash',
-        age: 27
-      }, {
-        id: 4,
-        name: 'Green Lantern',
-        age: 27
-      }, {
-        id: 5,
-        name: 'Cyborg',
-        age: 27
-      }, {
-        id: 6,
-        name: 'Wonder Woman',
-        age: 24
-      }];
+      const heroes = [
+        { name: 'Batman', alt: 'Bruce Wayne', all: "*" },
+        { name: 'Flash', alt: ' Barry Allen', all: "*" },
+        { name: 'Wonder Woman', alt: 'Diana', all: "*" },
+        { name: 'Cyborg', alt: 'Victor Stone', all: "*" },
+        { name: 'Superman', alt: 'Clark Kent' , all: "*" },
+        { name: 'Green Lantern', alt: 'Hal Jordan', all: "*" }
+      ];
 
-      t5.filter('flat', (hero) => ~stringifyKeys(hero).indexOf(model.toLocaleLowerCase()));
+      // Set focus to input.
+      filterBox.focus();
 
-      function stringifyKeys(data) {
-        return JSON.stringify(data).replace(/"\w+":"*(\w+)"*/g, '$1').toLocaleLowerCase();
-      }
-
-      filterBox.onkeyup = function(event) {
-        model = this.value;
+      // Upddate model on 'keyup' event.
+      filterBox.addEventListener('keyup', (event) => {
+        // Update model.
+        model = event.target.value;
+        // Render template witn new data.
         t5.render('heroes', {heroes});
-      }
+        // Show/Hide autocomplete container.
+        container.children.length > 0 ? container.classList.remove('off') : container.classList.add('off');
+      });
 
-      t5.render('heroes', {heroes});
+      // Handle click event.
+      container.addEventListener('click', (event) => {
+        // Get click vent obly from elements with `data-idx` attribute.
+        if(event.target.dataset && event.target.dataset.idx) {
+          heroes.some((hero) => {
+            if (hero.name === event.target.dataset.idx) {
+              filterBox.value = model = hero.name;
+              container.classList.add('off');
+              return true;
+            }
+            return false;
+          });
+        }
+      });
+
+      // Register templates + add new "flat" filter + first render with no data;
+      t5.template()
+        .filter('flat', (hero) => ~stringifyKeys(hero).indexOf(model.toLocaleLowerCase()) && model.length > 0)
+        .render('heroes', {heroes});
+
     }(t5));
   </script>
 </body>
