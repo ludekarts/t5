@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+  <meta charset="UTF-8">
+  <style>
+    /* T5 AUTOCOMPLETE */
+
+    .ac {
+    	max-width: 350px;
+    	display: block;
+    	background: white;
+    	box-shadow: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12);
+    }
+
+
+    .ac.off {
+    	display: none;
+    }
+
+    .ac li {
+    	margin: 0px;
+    	cursor: pointer;
+    	background: white;
+    	padding: 10px 15px;
+    	position: relative;
+    	transition: background .3s ease;
+    }
+
+    .ac li:hover {
+    	background: #ddd;
+    }
+
+    .ac li:after {
+    	/* Clearfix */
+    	height: 0;
+    	content: " ";
+    	clear: both;
+    	display: block;
+    	visibility: hidden;
+    }
+
+    .ac li:before {
+    	top: 0;
+    	left: 0;
+    	right: 0;
+    	bottom: 0;
+    	content: " ";
+    	display: block;
+    	position: absolute;
+    	background: rgba(0,0,0,0);
+    }
+
+    .ac .name {
+    	float: left;
+    	line-height: 20px;
+    	display: inline-block;
+    }
+
+    .ac .alt {
+    	width: 80px;
+    	float: right;
+    	font-size: 12px;
+    	padding: 4px;
+    	border-radius: 4px;
+    	text-align: center;
+    	background: #FFE401;
+    	display: inline-block;
+    }
+
+  </style>
+  <script src="assets/T5.js" charset="utf-8"></script>
+</head>
+
+<body>
+
+
+  <h1>Hero autocomplete</h1>
+  <p>Type name or alter-ego of your favourite DC superhero. Type <code>*</code> to see all heroes.</p>
+
+  <!-- Autocomplete START -->
+  <p><input id="filter-box" type="text" placeholder="Hero name"></p>
+  <ul id="heroes-container" data-t5="heroes" class="ac off">
+    <li repeat="hero in heroes | flat" data-idx="{{ hero.name }}">
+      <span class="name">{{ hero.name }}</span> <span class="alt">{{ hero.alt }}</span>
+    </li>
+  </ul>
+  <!-- Autocomplete END -->
+
+
+<script type="text/javascript">
+
+  (function(t5) {
+
+    let model = '';
+    const stringifyKeys = (data) => JSON.stringify(data).replace(/"\w+":"*(\w+)"*/g, '$1').toLocaleLowerCase();
+    const container = document.getElementById('heroes-container');
+    const filterBox = document.getElementById('filter-box');
+    const heroes = [
+      { name: 'Batman', alt: 'Bruce Wayne', all: "*" },
+      { name: 'Flash', alt: ' Barry Allen', all: "*" },
+      { name: 'Wonder Woman', alt: 'Diana', all: "*" },
+      { name: 'Cyborg', alt: 'Victor Stone', all: "*" },
+      { name: 'Superman', alt: 'Clark Kent' , all: "*" },
+      { name: 'Green Lantern', alt: 'Hal Jordan', all: "*" }
+    ];
+
+    // Set focus to input.
+    filterBox.focus();
+
+    // Upddate model on 'keyup' event.
+    filterBox.addEventListener('keyup', (event) => {
+      // Update model.
+      model = event.target.value;
+      // Render template witn new data.
+      t5.render('heroes', {heroes});
+      // Show/Hide autocomplete container.
+      container.children.length > 0 ? container.classList.remove('off') : container.classList.add('off');
+    });
+
+    // Handle click event.
+    container.addEventListener('click', (event) => {
+      // Get click vent obly from elements with `data-idx` attribute.
+      if(event.target.dataset && event.target.dataset.idx) {
+        heroes.some((hero) => {
+          if (hero.name === event.target.dataset.idx) {
+            filterBox.value = model = hero.name;
+            container.classList.add('off');
+            return true;
+          }
+          return false;
+        });
+      }
+    });
+
+    // Register templates + add new "flat" filter + first render with no data;
+    t5.template()
+      .filter('flat', (hero) => ~stringifyKeys(hero).indexOf(model.toLocaleLowerCase()) && model.length > 0)
+      .render('heroes', {heroes});
+
+  }(t5));
+</script>
+</body>
+</html>
