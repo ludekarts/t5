@@ -17,7 +17,41 @@
     <!-- Dynamic content -->
   </section>
 
-  <script type="text/javascript">
+
+  <div id="single">
+    <div>
+      <h3>Hello <span style="color:{{ color : age > 30 }};">{{ name }}</span>!</h3>
+      <p><span repeat="num in numbers">{{ num }},</span></p>
+    </div>
+  <ul>
+    <li repeat="subset in set">
+      <span>{{ subset.name }}</span>
+      <ul>
+        <li repeat="deep in subset.deep">
+          <p>{{ deep.name }}, {{ deep.deeper[2] }} </p>
+          <span repeat="num in deep.deeper > emoji">{{ num }}</span>
+          <span repeat="double in deep.deeper | even" class="active">{{ double }}</span>
+        </li>
+      </ul>
+    </li>
+  </ul>
+  </div>
+
+
+
+<script src="T5.0.4.0.js" charset="utf-8"></script>
+<script type="text/javascript">
+    const mods = {
+      emoji (element) {
+        return element += " " + String.fromCharCode(0xD83D, 0xDE04);
+      }
+    };
+
+    const  filters = {
+      even (element) {
+        return element % 2 === 0;
+      }
+    };
 
     const singleData = {
       name: 'Ania',
@@ -41,47 +75,10 @@
           {name: 'Clark_C', deeper: [7,8,9]},
         ]}
       ]
-    }
+    };
+
+    const single = document.getElementById('single');
+    single.innerHTML = build(single, filters, mods)(singleData);
   </script>
-
-  <div id="single">
-    <div>
-      <h3>Hello <span style="color:{{ color : age > 30 }};">{{ name }}</span>!</h3>
-      <p><span repeat="num in numbers">{{ num }},</span></p>
-    </div>
-  <ul>
-    <li repeat="subset in set">
-      <span>{{ subset.name }}</span>
-      <ul>
-        <li repeat="deep in subset.deep">
-          <p>{{ deep.name }}, {{ deep.deeper[2] }} </p>
-          <span repeat="num in deep.deeper > emoji">{{ num }}</span>
-          <span repeat="double in deep.deeper | even" class="active">{{ double }}</span>
-        </li>
-      </ul>
-    </li>
-  </ul>
-  </div>
-
-
-<!--
-
-  <ul id="singleX">
-    #%subset in set%#
-  </ul>
-
-  <li repeat="subset in set">
-    <span>{{ subset.name }}</span>
-    <ul>
-      #%num in subset.deep%#
-    </ul>
-  </li>
-
-  <li repeat="num in subset.deep">{{ num }}</li>
-
--->
-
-
-<script src="T5.0.4.0.js" charset="utf-8"></script>
 </body>
 </html>
