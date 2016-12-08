@@ -92,7 +92,7 @@ function createRepeaterFunction (template, scope, filters, mods) {
 }
 
 const build = function (template, filters, mods) {
-  let body = "return '" + createRepeaterFunction(template,'data', filters, mods) + "';";
+  let body = "return '" + createRepeaterFunction(template,'scope', filters, mods) + "';";
   // console.log(body);  // Debug Function Code.
-  return new Function('data', body);
+  return new Function('scope', body);
 }

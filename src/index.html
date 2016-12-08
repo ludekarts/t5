@@ -9,6 +9,12 @@
     padding: 5px;
     background: rgb(230, 21, 77);
   }
+
+  .odd {
+    color: white;
+    padding: 5px;
+    background: rgb(252, 170, 10);
+  }
   </style>
 </head>
 <body>
@@ -18,7 +24,7 @@
   </section>
 
 
-  <div id="single">
+  <div id="single" data-t5="single">
     <div>
       <h3>Hello <span style="color:{{ color : age > 30 }};">{{ name }}</span>!</h3>
       <p><span repeat="num in numbers">{{ num }},</span></p>
@@ -30,16 +36,13 @@
         <li repeat="deep in subset.deep">
           <p>{{ deep.name }}, {{ deep.deeper[2] }} </p>
           <span repeat="num in deep.deeper > emoji">{{ num }}</span>
-          <span repeat="double in deep.deeper | even" class="active">{{ double }}</span>
+          <span repeat="double in deep.deeper | even" class="{{ 'odd' : double > 2 && double < 5 }}">{{ double }}</span>
         </li>
       </ul>
     </li>
   </ul>
   </div>
 
-
-
-<script src="T5.0.4.0.js" charset="utf-8"></script>
 <script type="text/javascript">
     const mods = {
       emoji (element) {
@@ -77,8 +80,23 @@
       ]
     };
 
+  </script>
+
+<!-- NEW T5 -->
+<script src="T5.js" charset="utf-8"></script>
+<script type="text/javascript">
+  const single = document.getElementById('single');
+  t5.modify('emoji', mods.emoji).filter('even', filters.even).template().render('single', singleData);
+  console.log(singleData);
+</script>
+
+  <!-- PROTOTYPE -->
+  <!-- <script src="T5.0.4.0.js" charset="utf-8"></script>
+  <script type="text/javascript">
     const single = document.getElementById('single');
     single.innerHTML = build(single, filters, mods)(singleData);
-  </script>
+    console.log(singleData);
+  </script> -->
+
 </body>
 </html>
