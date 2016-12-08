@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>T5.0.4.0</title>
+  <style>
+  .active {
+    color: white;
+    padding: 5px;
+    background: rgb(230, 21, 77);
+  }
+  </style>
+</head>
+<body>
+
+  <section id="content">
+    <!-- Dynamic content -->
+  </section>
+
+  <script type="text/javascript">
+
+    const singleData = {
+      name: 'Ania',
+      age: 33,
+      color: 'rgb(23, 80, 228)',
+      numbers: [2,1,4,3],
+      set : [
+        {id: 1, name: 'Piter', deep: [
+          {name: 'Piter_A', deeper: [1,2,3]},
+          {name: 'Piter_B', deeper: [4,5,6]},
+          {name: 'Piter_C', deeper: [7,8,9]},
+        ]},
+        {id: 2, name: 'Bruce', deep: [
+          {name: 'Bruce_A', deeper: [1,2,3]},
+          {name: 'Bruce_B', deeper: [4,5,6]},
+          {name: 'Bruce_C', deeper: [7,8,9]},
+        ]},
+        {id: 3, name: 'Clark', deep: [
+          {name: 'Clark_A', deeper: [1,2,3]},
+          {name: 'Clark_B', deeper: [4,5,6]},
+          {name: 'Clark_C', deeper: [7,8,9]},
+        ]}
+      ]
+    }
+  </script>
+
+  <div id="single">
+    <div>
+      <h3>Hello <span style="color:{{ color : age > 30 }};">{{ name }}</span>!</h3>
+      <p><span repeat="num in numbers">{{ num }},</span></p>
+    </div>
+  <ul>
+    <li repeat="subset in set">
+      <span>{{ subset.name }}</span>
+      <ul>
+        <li repeat="deep in subset.deep">
+          <p>{{ deep.name }}, {{ deep.deeper[2] }} </p>
+          <span repeat="num in deep.deeper > emoji">{{ num }}</span>
+          <span repeat="double in deep.deeper | even" class="active">{{ double }}</span>
+        </li>
+      </ul>
+    </li>
+  </ul>
+  </div>
+
+
+<!--
+
+  <ul id="singleX">
+    #%subset in set%#
+  </ul>
+
+  <li repeat="subset in set">
+    <span>{{ subset.name }}</span>
+    <ul>
+      #%num in subset.deep%#
+    </ul>
+  </li>
+
+  <li repeat="num in subset.deep">{{ num }}</li>
+
+-->
+
+
+<script src="T5.0.4.0.js" charset="utf-8"></script>
+</body>
+</html>
