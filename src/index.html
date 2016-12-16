@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>T5.0.4.0</title>
+  <title>T5.0.4.1</title>
   <style>
   .active {
     color: white;
@@ -19,9 +19,7 @@
 </head>
 <body>
 
-  <section id="content">
-    <!-- Dynamic content -->
-  </section>
+  <H1 data-t5="header">HEEEELLLOO! {{ name }} !</H1>
 
 
   <div id="single" data-t5="single">
@@ -29,19 +27,23 @@
       <h3>Hello <span style="color:{{ color : age > 30 }};">{{ name }}</span>!</h3>
       <p><span repeat="num in numbers">{{ num }},</span></p>
     </div>
-  <ul>
-    <li repeat="subset in set">
-      <span>{{ subset.name }}</span>
-      <ul>
-        <li repeat="deep in subset.deep">
-          <p>{{ deep.name }}, {{ deep.deeper[2] }} </p>
-          <span repeat="num in deep.deeper > emoji">{{ num }}</span>
-          <span repeat="double in deep.deeper | even" class="{{ 'odd' : double > 2 && double < 5 }}">{{ double }}</span>
-        </li>
-      </ul>
-    </li>
-  </ul>
+    <ul>
+      <li repeat="subset in set">
+        <span>{{ subset.name }}</span>
+        <ul>
+          <li repeat="deep in subset.deep">
+            <p>{{ deep.name }}, {{ deep.deeper[2] }} </p>
+            <span repeat="num in deep.deeper > emoji">{{ num }}</span>
+            <span repeat="double in deep.deeper | even" class="{{ 'odd' : double > 2 && double < 5 }}">{{ double }}</span>
+          </li>
+        </ul>
+      </li>
+    </ul>
   </div>
+
+  <section id="links">
+
+  </section>
 
 <script type="text/javascript">
     const mods = {
@@ -80,13 +82,35 @@
       ]
     };
 
+
+    const linksList = [
+      {link: 'linkOne'},
+      {link: 'linkTwo'},
+      {link: 'linkThree'}
+    ];
+
   </script>
 
 <!-- NEW T5 -->
 <script src="T5.js" charset="utf-8"></script>
 <script type="text/javascript">
   const single = document.getElementById('single');
-  t5.modify('emoji', mods.emoji).filter('even', filters.even).template().render('single', singleData);
+  const links = document.getElementById('links');
+
+  t5.modify('emoji', mods.emoji)
+    .filter('even', filters.even)
+    .template()
+    .render('single', singleData);
+
+  t5.render('header', singleData);
+
+  links.innerHTML = t5.template('test', `
+    <div>
+      <li repeat="item in data">
+        <a href="#{{ item.link }}">{{ item.link }}</a>
+      </li>
+    </div>`).render('test', {data:linksList})
+
   console.log(singleData);
 </script>
 

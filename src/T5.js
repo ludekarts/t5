@@ -2,7 +2,7 @@
  * T5.js
  * Micro-templating engine with user friendly markup, nested repeaters, custom fiilters adn outputs modifiers.
  *
- * version : 0.4.0
+ * version : 0.4.1
  * author  : Wojciech Ludwin 2016
  * contact : ludekarts@gmail.com, https://wldesign.pl
  * webpage : https://ludekarts.github.io/t5/
@@ -26,13 +26,13 @@
    var _precompiledTemplates = {};
 
    // Register templates as HTML-template-string & stroe it under the @name.
-   var _template = function (templateString, name) {
-     if (templateString && name) {
+   var _template = function (name, templateString) {
+     if (name && templateString) {
        //Convert HTML source to DOM Element.
        var wrapper = document.createElement('div');
        var stub = document.createRange().createContextualFragment(templateString);
        wrapper.appendChild(stub);
-       _precompiledTemplates[name] = precompileHTML(wrapper.firstChild, _filters, _modifiers);
+       _precompiledTemplates[name] = precompileHTML(wrapper.children[0], _filters, _modifiers);
 
        wrapper = null;
        stub = null;
@@ -145,7 +145,7 @@
    //  Wrap templateFunction with execution function.
    var precompileHTML = function (template, filters, mods) {
      var body = "return '" + templateToFunction(template,'scope', filters, mods) + "';";
-     console.log(body);  // Debug Function's Code.
+    //  console.log(body);  // Debug Function's Code.
      return new Function('scope', body);
    };
 
