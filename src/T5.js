@@ -2,7 +2,7 @@
  * T5.js
  * Micro-templating engine with user friendly markup, nested repeaters, custom fiilters adn outputs modifiers.
  *
- * version : 0.4.1
+ * version : 0.4.2
  * author  : Wojciech Ludwin 2016
  * contact : ludekarts@gmail.com, https://wldesign.pl
  * webpage : https://ludekarts.github.io/t5/
@@ -32,7 +32,7 @@
        var wrapper = document.createElement('div');
        var stub = document.createRange().createContextualFragment(templateString);
        wrapper.appendChild(stub);
-       _precompiledTemplates[name] = precompileHTML(wrapper.children[0], _filters, _modifiers);
+       _precompiledTemplates[name] = precompileHTML(wrapper);
 
        wrapper = null;
        stub = null;
@@ -49,7 +49,7 @@
            clone.removeAttribute('data-t5');
            // Bail if Repader doesn't have wrapper.
            if (clone.getAttribute('repeat')) throw new Error ('Repeater: "' + name + '" need to have a wrapper node!');
-           _precompiledTemplates[name] = precompileHTML(clone, _filters, _modifiers);
+           _precompiledTemplates[name] = precompileHTML(clone);
            _templatesReferences[name] = template;
            clone = null;
          }
@@ -89,35 +89,37 @@
    };
 
    // Render single repeater functions.
-   var repeaterTemplate = function (template, repeaterScope, localScope, filter, mod) {
+   var repeaterTemplate = function (template, repeaterScope, localScope, filterName, modName) {
      return ""
-     +"(function (repeaterArray, filter, mod) {"
+     +"(function (repeaterArray, filterName, modName) {"
+          // Register filter & mod fot this repearter.
+     +    "var filter = filters[filterName], mod = mods[modName];"
            // Clone template for @repeaterArray.
      +     "return repeaterArray.reduce(function (result, "+ localScope +", index) {"
            // When filter finds value."
-     +     "if (filter && !filter(" + localScope + ")) return result;"
+     +     "if (filter && !filter(" + localScope + ", index)) return result;"
            // Modify current scope if mod exist.
-     +     ""+ localScope +" = mod ? mod(" + localScope + ") : " + localScope + ";"
+     +     "if (mod) "+ localScope +" = mod(" + localScope + ", index);"
            // Interpolate template.
      +     "return result += \'"+ conditionsValidator(interpolate(template)) + "\';"
      +   "}, '');"
-     +"}("+ repeaterScope +", "+ filter +", " + mod + "))";
+     +"}("+ repeaterScope +", '"+ filterName +"', '" + modName + "'))";
    };
 
    // Exreact Modificator & Filter names.
-   var mod_and_filter = function (expresion, filters, mods) {
+   var mod_and_filter = function (expresion) {
      var modName = expresion.match(/\>+\s*(\w+)/);
      var filterName = expresion.match(/\|+\s*(\w+)/);
      return {
-       mod: mods[modName ? modName[1] : ''],
-       filter: filters[filterName ? filterName[1] : '']
+       mod: modName ? modName[1] : undefined,
+       filter: filterName ? filterName[1] : undefined
      }
    };
 
    // Transform HTML template into templateFunction.
-   var templateToFunction = function (template, scope, filters, mods) {
+   var templateToFunction = function (template, scope) {
      var repeaters = [].slice.call(template.querySelectorAll('[repeat]'));
-     var repeaterKey, params, repeatString, parentRepeater = false, tail;
+     var repeaterKey, params, repeatString, parentRepeater = false, mf;
      // Build repeater code with dependencies base on DOM structure
      // At first reverse repeaters Array to maintain dependencies.
      repeaters.reverse().forEach(function (innerRepeater, index) {
@@ -128,9 +130,20 @@
        parentRepeater = !~params[2].indexOf('.');
        // params[3] = '|' params[4] = 'filterName' params[5] = '>' params[6] = 'modName'.
        // Get Filter and Modifiers if exist.
-       tail = (params[3] && params[3] === '|' || params[3] === '>') ? mod_and_filter(params.slice(3, params.length).join(' '), filters, mods) : { mod: undefined, filter: undefined };
+       mf = (params[3] && params[3] === '|' || params[3] === '>>') ? mod_and_filter(params.slice(3, params.length).join(' ')) : { mod: undefined, filter: undefined };
        // Replace repeter HTML with repeter function.
-       innerRepeater.outerHTML = "'+" + repeaterTemplate(innerRepeater.outerHTML, parentRepeater ? scope + '.' + params[2] : params[2], params[0], tail.filter, tail.mod) + "+'";
+       innerRepeater.outerHTML = "'+" + repeaterTemplate(
+         // template.
+         innerRepeater.outerHTML,
+         // repeaterScope.
+         parentRepeater ? scope + '.' + params[2] : params[2],
+         // localScope.
+         params[0],
+         // filter.
+         mf.filter,
+         //  modifier.
+         mf.mod) +
+        "+'";
      });
      // Interpolate non-repeaters.
      return conditionsValidator(interpolate(template.outerHTML, scope), scope)
@@ -143,16 +156,16 @@
    };
 
    //  Wrap templateFunction with execution function.
-   var precompileHTML = function (template, filters, mods) {
-     var body = "return '" + templateToFunction(template,'scope', filters, mods) + "';";
+   var precompileHTML = function (template) {
+     var body = "return '" + templateToFunction(template,'scope') + "';";
     //  console.log(body);  // Debug Function's Code.
-     return new Function('scope', body);
+     return new Function('scope', 'filters', 'mods', body);
    };
 
    // Register template with @data.
    var _render = function (templateName, data) {
      // Get only the content withouth origonal wrapper OR return no template string.
-     var result = _precompiledTemplates[templateName] ? _precompiledTemplates[templateName](data).replace(/<(\w*)[^>]*>([\s\S]*?)<\/\1>/, function (a, b, c) { return c }) : '<< NO TEMPLATE >>';
+     var result = _precompiledTemplates[templateName] ? _precompiledTemplates[templateName](data, _filters, _modifiers).replace(/<(\w*)[^>]*>([\s\S]*?)<\/\1>/, function (a, b, c) { return c }) : '<< NO TEMPLATE >>';
      var ref = _templatesReferences[templateName];
      if (ref) ref.innerHTML = result;
      return result;

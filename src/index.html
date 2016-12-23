@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>T5.0.4.1</title>
+  <title>T5.0.4.2</title>
   <style>
   .active {
     color: white;
@@ -33,7 +33,7 @@
         <ul>
           <li repeat="deep in subset.deep">
             <p>{{ deep.name }}, {{ deep.deeper[2] }} </p>
-            <span repeat="num in deep.deeper > emoji">{{ num }}</span>
+            <span repeat="num in deep.deeper >> emoji">{{ num }}</span>
             <span repeat="double in deep.deeper | even" class="{{ 'odd' : double > 2 && double < 5 }}">{{ double }}</span>
           </li>
         </ul>
@@ -122,5 +122,5 @@
     console.log(singleData);
   </script> -->
 
-</body>
+  </body>
 </html>
