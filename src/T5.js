@@ -192,7 +192,7 @@
 
    // Public API.
    var API = {
-     version  : '0.4.0',
+     version  : '0.4.2',
      trace    : _trace,
      render   : _render,
      filter   : _filter,
